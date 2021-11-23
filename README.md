@@ -18,6 +18,16 @@ $ crontab -e
 * * * * * <Pythonの絶対パス> <antenna.pyの絶対パス> --discord_webhook_url <Discord webhook URL>
 ```
 
+## Sample Output
+```
+UPDATED: http://worldclockapi.com/api/json/utc/now
+--- old
++++ new
+@@ -1 +1 @@
+-{"$id":"1","currentDateTime":"2021-11-23T06:16Z","utcOffset":"00:00:00","isDayLightSavingsTime":false,"dayOfTheWeek":"Tuesday","timeZoneName":"UTC","currentFileTime":132821217816515389,"ordinalDate":"2021-327","serviceResponse":null}
++{"$id":"1","currentDateTime":"2021-11-23T06:16Z","utcOffset":"00:00:00","isDayLightSavingsTime":false,"dayOfTheWeek":"Tuesday","timeZoneName":"UTC","currentFileTime":132821217907770782,"ordinalDate":"2021-327","serviceResponse":null}
+```
+
 ## Options
 
 ```
