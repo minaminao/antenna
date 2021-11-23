@@ -18,12 +18,13 @@ def main():
     parser.add_argument("--clear", action="store_true", help="Clear archive directory")
     args = parser.parse_args()
 
-    SITEURL_PATH = BASE_DIR_PATH / args.url_file
-    urls = [line.strip() for line in SITEURL_PATH.open().readlines() if line.strip() != ""]
 
     if args.sample:
         SITEURL_SAMPLE_PATH = BASE_DIR_PATH / "url_sample.txt"
         urls = [line.strip() for line in SITEURL_SAMPLE_PATH.open().readlines() if line.strip() != ""]
+    else:
+        SITEURL_PATH = BASE_DIR_PATH / args.url_file
+        urls = [line.strip() for line in SITEURL_PATH.open().readlines() if line.strip() != ""]
 
     if args.clear:
         for f in ARCHIVE_DIR_PATH.glob("*"):

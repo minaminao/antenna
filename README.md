@@ -3,15 +3,22 @@
 
 ## Usage
 
+url.txtに以下のように記述。
+```
+https://foo/
+https://bar/
+```
+
+cronを設定。
+
 ```
 $ crontab -e
 ```
-
 ```
 * * * * * <Pythonの絶対パス> <antenna.pyの絶対パス> --discord_webhook_url <Discord webhook URL>
 ```
 
-### Options
+## Options
 
 ```
 usage: antenna.py [-h] [--url_file URL_FILE] [--discord_webhook_url DISCORD_WEBHOOK_URL] [--sample] [--clear]
