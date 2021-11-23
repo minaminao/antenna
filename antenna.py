@@ -50,7 +50,9 @@ def main():
                 if args.discord_webhook_url:
                     requests.post(args.discord_webhook_url, json={"content": f"UPDATED: {url}\n```{diff_res}```"})
                 else:
-                    print(f"{url}\n{diff_res}")
+                    print(f"UPDATED: {url}")
+                    print(diff_res)
+                    print()
 
         with open(ARCHIVE_DIR_PATH / filename, "wb") as f:
             f.write(response.content)

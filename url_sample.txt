@@ -1,1 +1,2 @@
 http://worldclockapi.com/api/json/utc/now
+http://worldclockapi.com/api/json/est/now
