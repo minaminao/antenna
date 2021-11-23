@@ -17,6 +17,7 @@ def main():
     parser.add_argument("--sample", action="store_true", help="Use sample URL list")
     parser.add_argument("--clear", action="store_true", help="Clear archive directory")
     parser.add_argument("--line_length_limit", type=int, default=100, help="Line length limit of diff")
+    parser.add_argument("--number_of_context_lines", type=int, default=1, help="Number of context lines")
     parser.add_argument("--no_archive", action="store_true", help="Do not archive sites")
     args = parser.parse_args()
 
@@ -45,7 +46,7 @@ def main():
         if filepath.exists():
             prev_content = filepath.open("r").read().split("\n")
 
-            diff = difflib.unified_diff(prev_content, content, "old", "new", lineterm="")
+            diff = difflib.unified_diff(prev_content, content, "Previous", "Current", n=args.number_of_context_lines, lineterm="")
             diff_res = ""
             for line in diff:
                 n = args.line_length_limit
