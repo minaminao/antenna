@@ -11,11 +11,11 @@ ARCHIVE_DIR_PATH = BASE_DIR_PATH / "archive"
 def main():
     ARCHIVE_DIR_PATH.mkdir(exist_ok=True)
 
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--url_file", type=str, default="url.txt")
-    parser.add_argument("--discord_webhook_url", type=str)
-    parser.add_argument("--sample", action="store_true")
-    parser.add_argument("--clear", action="store_true")
+    parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument("--url_file", type=str, default="url.txt", help="URL list")
+    parser.add_argument("--discord_webhook_url", type=str, help="Discord webhook URL")
+    parser.add_argument("--sample", action="store_true", help="Use sample URL list")
+    parser.add_argument("--clear", action="store_true", help="Clear archive directory")
     args = parser.parse_args()
 
     SITEURL_PATH = BASE_DIR_PATH / args.url_file
