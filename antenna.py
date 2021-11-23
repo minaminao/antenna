@@ -54,8 +54,7 @@ def main():
                     print(diff_res)
                     print()
 
-        with open(ARCHIVE_DIR_PATH / filename, "wb") as f:
-            f.write(response.content)
+        filepath.open("wb").write(response.content)
 
 
 if __name__ == "__main__":
