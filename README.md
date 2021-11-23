@@ -31,7 +31,7 @@ UPDATED: http://worldclockapi.com/api/json/utc/now
 ## Options
 
 ```
-usage: antenna.py [-h] [--url_file URL_FILE] [--discord_webhook_url DISCORD_WEBHOOK_URL] [--sample] [--clear]
+usage: antenna.py [-h] [--url_file URL_FILE] [--discord_webhook_url DISCORD_WEBHOOK_URL] [--sample] [--clear] [--line_length_limit LINE_LENGTH_LIMIT] [--no_archive]
 
 options:
   -h, --help            show this help message and exit
@@ -40,4 +40,7 @@ options:
                         Discord webhook URL (default: None)
   --sample              Use sample URL list (default: False)
   --clear               Clear archive directory (default: False)
+  --line_length_limit LINE_LENGTH_LIMIT
+                        Line length limit of diff (default: 100)
+  --no_archive          Do not archive sites (default: False)
 ```

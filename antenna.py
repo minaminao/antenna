@@ -16,6 +16,8 @@ def main():
     parser.add_argument("--discord_webhook_url", type=str, help="Discord webhook URL")
     parser.add_argument("--sample", action="store_true", help="Use sample URL list")
     parser.add_argument("--clear", action="store_true", help="Clear archive directory")
+    parser.add_argument("--line_length_limit", type=int, default=100, help="Line length limit of diff")
+    parser.add_argument("--no_archive", action="store_true", help="Do not archive sites")
     args = parser.parse_args()
 
 
@@ -44,7 +46,13 @@ def main():
             prev_content = filepath.open("r").read().split("\n")
 
             diff = difflib.unified_diff(prev_content, content, "old", "new", lineterm="")
-            diff_res = "\n".join(diff)
+            diff_res = ""
+            for line in diff:
+                n = args.line_length_limit
+                if len(line) > n:
+                    diff_res += line[:n//2] + " ... " + line[-n//2:] + "\n"
+                else:
+                    diff_res += line + "\n"
 
             if diff_res != "":
                 if args.discord_webhook_url:
@@ -54,7 +62,8 @@ def main():
                     print(diff_res)
                     print()
 
-        filepath.open("wb").write(response.content)
+        if not args.no_archive:
+            filepath.open("wb").write(response.content)
 
 
 if __name__ == "__main__":
