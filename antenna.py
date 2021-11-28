@@ -1,8 +1,10 @@
-from pathlib import Path
 import argparse
-import requests
-import hashlib
 import difflib
+import hashlib
+import re
+from pathlib import Path
+
+import requests
 
 BASE_DIR_PATH = Path(__file__).parent
 ARCHIVE_DIR_PATH = BASE_DIR_PATH / "archive"
@@ -24,27 +26,36 @@ def main():
 
     if args.sample:
         SITEURL_SAMPLE_PATH = BASE_DIR_PATH / "url_sample.txt"
-        urls = [line.strip() for line in SITEURL_SAMPLE_PATH.open().readlines() if line.strip() != ""]
+        tasks = [line.strip().split(",", 1) for line in SITEURL_SAMPLE_PATH.open().readlines() if line.strip() != ""]
     else:
         SITEURL_PATH = BASE_DIR_PATH / args.url_file
-        urls = [line.strip() for line in SITEURL_PATH.open().readlines() if line.strip() != ""]
+        tasks = [line.strip().split(",", 1) for line in SITEURL_PATH.open().readlines() if line.strip() != ""]
 
     if args.clear:
         for f in ARCHIVE_DIR_PATH.glob("*"):
             f.unlink()
 
-    for url in urls:
+    for task in tasks:
+        url = task[0].strip()
+        pattern = task[1].strip() if len(task) > 1 else None
+
         response = requests.get(url)
 
         if response.status_code != 200:
             continue
 
-        content = response.content.decode().split("\n")
+        if not pattern:
+            content = response.content.decode().split("\n")
+        else:
+            content = re.findall(pattern, response.content.decode())
         filename = hashlib.md5(url.encode()).hexdigest()[:8]
         filepath = ARCHIVE_DIR_PATH / filename
 
         if filepath.exists():
-            prev_content = filepath.open("r").read().split("\n")
+            if not pattern:
+                prev_content = filepath.open("r").read().split("\n")
+            else:
+                prev_content = re.findall(pattern, filepath.open("r").read())
 
             diff = difflib.unified_diff(prev_content, content, "Previous", "Current", n=args.number_of_context_lines, lineterm="")
             diff_res = ""
