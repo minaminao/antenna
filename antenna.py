@@ -21,6 +21,7 @@ def main():
     parser.add_argument("--line_length_limit", type=int, default=100, help="Line length limit of diff")
     parser.add_argument("--number_of_context_lines", type=int, default=1, help="Number of context lines")
     parser.add_argument("--no_archive", action="store_true", help="Do not archive sites")
+    parser.add_argument("--show", action="store_true", help="Show content")
     args = parser.parse_args()
 
 
@@ -48,6 +49,8 @@ def main():
             content = response.content.decode().split("\n")
         else:
             content = re.findall(pattern, response.content.decode())
+        if args.show:
+            print(f"content = {content}")
         filename = hashlib.md5(url.encode()).hexdigest()[:8]
         filepath = ARCHIVE_DIR_PATH / filename
 

@@ -54,4 +54,5 @@ options:
   --number_of_context_lines NUMBER_OF_CONTEXT_LINES
                         Number of context lines (default: 1)
   --no_archive          Do not archive sites (default: False)
+  --show                Show content (default: False)
 ```
