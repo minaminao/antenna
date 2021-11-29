@@ -91,9 +91,9 @@ def main():
                     description = str(translator.translate_text(description, target_lang="JA"))
 
                 if discord_webhook_url:
-                    requests.post(discord_webhook_url, json={"content": f"[{page_title}] {title}\n{url}\n```{description}```"})
+                    requests.post(discord_webhook_url, json={"content": f"[{page_title}] {title} {url}\n```{description}```"})
                 else:
-                    print(f"[{page_title}] {title}\n{url}\n{description}")
+                    print(f"[{page_title}] {title} {url}\n{description}")
                     print()
 
                 if not args.no_archive:
