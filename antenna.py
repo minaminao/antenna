@@ -62,6 +62,7 @@ def main():
         page_title = task.get("title", None)
         pattern = task.get("pattern", None)
         translate = task.get("translate", False)
+        count = task.get("count", False)
 
         filename = hashlib.md5(url.encode()).hexdigest()[:8]
         filepath = ARCHIVE_DIR_PATH / filename
@@ -73,6 +74,9 @@ def main():
 
             if len(entries) == 0:
                 continue
+
+            if count:
+                entries = entries[:count]
 
             if filepath.exists():
                 known_titles = [line.strip() for line in filepath.open().readlines()]
