@@ -1,6 +1,7 @@
 import argparse
 import difflib
 import hashlib
+import json
 import re
 from pathlib import Path
 
@@ -27,26 +28,30 @@ def main():
     parser.add_argument("--show", action="store_true", help="Show content")
     args = parser.parse_args()
 
-
     if args.sample:
-        SITEURL_SAMPLE_PATH = BASE_DIR_PATH / "url_sample.txt"
-        tasks = [line.strip().split(",", 1) for line in SITEURL_SAMPLE_PATH.open().readlines() if line.strip() != ""]
+        SITEURL_SAMPLE_PATH = BASE_DIR_PATH / "url_sample.json"
+        tasks = json.load(SITEURL_SAMPLE_PATH.open())
     else:
         SITEURL_PATH = BASE_DIR_PATH / args.url_file
-        tasks = [line.strip().split(",", 1) for line in SITEURL_PATH.open().readlines() if line.strip() != ""]
+        tasks = json.load(SITEURL_PATH.open())
 
     if args.clear:
         for f in ARCHIVE_DIR_PATH.glob("*"):
             f.unlink()
 
     for task in tasks:
-        url = task[0].strip()
-        pattern = task[1].strip() if len(task) > 1 else None
+        url = task["url"].strip()
+        page_type = task.get("type", None)
+        page_title = task.get("title", None)
+        pattern = task.get("pattern", None)
+
         filename = hashlib.md5(url.encode()).hexdigest()[:8]
         filepath = ARCHIVE_DIR_PATH / filename
 
-        if pattern == "rss":
-            entries = get_entries(url)
+        if page_type == "rss":
+            feed_title, entries = get_entries(url)
+            if page_title is None:
+                page_title = feed_title
 
             if len(entries) == 0:
                 continue
@@ -55,17 +60,15 @@ def main():
                 known_titles = [line.strip() for line in filepath.open().readlines()]
             else:
                 known_titles = []
-                
+
             for title, url, description in entries[::-1]:
                 if title in known_titles[-len(entries):]:
                     continue
 
                 if args.discord_webhook_url:
-                    requests.post(args.discord_webhook_url, json={"content": f"{title}\n{url}\n```{description}```"})
+                    requests.post(args.discord_webhook_url, json={"content": f"[{page_title}]\n{title}\n{url}\n```{description}```"})
                 else:
-                    print(title)
-                    print(url)
-                    print(description)
+                    print(f"[{page_title}]\n{title}\n{url}\n{description}")
                     print()
 
                 if not args.no_archive:
@@ -96,7 +99,7 @@ def main():
                 for line in diff:
                     n = args.line_length_limit
                     if len(line) > n:
-                        diff_res += line[:n//2] + " ... " + line[-n//2:] + "\n"
+                        diff_res += line[:n // 2] + " ... " + line[-n // 2:] + "\n"
                     else:
                         diff_res += line + "\n"
 
@@ -104,8 +107,7 @@ def main():
                     if args.discord_webhook_url:
                         requests.post(args.discord_webhook_url, json={"content": f"UPDATED: {url}\n```{diff_res}```"})
                     else:
-                        print(f"UPDATED: {url}")
-                        print(diff_res)
+                        print(f"UPDATED: {url}\n{diff_res}")
                         print()
 
             if not args.no_archive:

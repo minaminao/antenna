@@ -3,10 +3,24 @@
 
 ## Usage
 
-url.txtに以下のように記述。
-```
-https://foo/
-https://bar/
+url.jsonに以下のように記述。
+```json
+[
+    {
+        "type": "text",
+        "url":"http://worldclockapi.com/api/json/utc/now"
+    },
+    {
+        "type": "text",
+        "url":"http://worldclockapi.com/api/json/est/now",
+        "pattern": "\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}"
+    },
+        {
+        "type": "rss",
+        "url": "http://feeds.feedburner.com/oreilly/newbooks",
+        "title": "O'Reilly New Books"
+    }
+]
 ```
 
 cronを設定。

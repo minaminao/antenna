@@ -1,3 +1,0 @@
-http://worldclockapi.com/api/json/utc/now
-http://worldclockapi.com/api/json/est/now,\d{4}-\d{2}-\d{2}T\d{2}:\d{2}
-http://feeds.feedburner.com/oreilly/newbooks,rss
