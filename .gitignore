@@ -1,6 +1,7 @@
 archive
 url.json
-# TODO: deepl_api_key.txt
+deepl_api_key.txt
+discord_webhook_url.txt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

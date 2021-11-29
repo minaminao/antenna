@@ -5,6 +5,7 @@ import json
 import re
 from pathlib import Path
 
+import deepl
 import feedparser
 import requests
 
@@ -19,6 +20,7 @@ def main():
 
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("--url_file", type=str, default="url.txt", help="URL list")
+    parser.add_argument("--discord", action="store_true", help="Notify Discord using local webhook url file")
     parser.add_argument("--discord_webhook_url", type=str, help="Discord webhook URL")
     parser.add_argument("--sample", action="store_true", help="Use sample URL list")
     parser.add_argument("--clear", action="store_true", help="Clear archive directory")
@@ -27,6 +29,21 @@ def main():
     parser.add_argument("--no_archive", action="store_true", help="Do not archive sites")
     parser.add_argument("--show", action="store_true", help="Show content")
     args = parser.parse_args()
+
+    deepl_api_key_filepath = Path("deepl_api_key.txt")
+    if deepl_api_key_filepath.exists():
+        deepl_api_key = deepl_api_key_filepath.open().read().strip()
+        translator = deepl.Translator(deepl_api_key)
+    else:
+        translator = None
+
+    discord_webhook_url_filepath = Path("discord_webhook_url.txt")
+    if args.discord and discord_webhook_url_filepath.exists():
+        discord_webhook_url = discord_webhook_url_filepath.open().read().strip()
+    elif args.discord_webhook_url:
+        discord_webhook_url = args.discord_webhook_url
+    else:
+        discord_webhook_url = None
 
     if args.sample:
         SITEURL_SAMPLE_PATH = BASE_DIR_PATH / "url_sample.json"
@@ -44,6 +61,7 @@ def main():
         page_type = task.get("type", None)
         page_title = task.get("title", None)
         pattern = task.get("pattern", None)
+        translate = task.get("translate", False)
 
         filename = hashlib.md5(url.encode()).hexdigest()[:8]
         filepath = ARCHIVE_DIR_PATH / filename
@@ -65,10 +83,13 @@ def main():
                 if title in known_titles[-len(entries):]:
                     continue
 
-                if args.discord_webhook_url:
-                    requests.post(args.discord_webhook_url, json={"content": f"[{page_title}]\n{title}\n{url}\n```{description}```"})
+                if translate and translator is not None:
+                    description = str(translator.translate_text(description, target_lang="JA"))
+
+                if discord_webhook_url:
+                    requests.post(discord_webhook_url, json={"content": f"[{page_title}] {title}\n{url}\n```{description}```"})
                 else:
-                    print(f"[{page_title}]\n{title}\n{url}\n{description}")
+                    print(f"[{page_title}] {title}\n{url}\n{description}")
                     print()
 
                 if not args.no_archive:
@@ -104,11 +125,17 @@ def main():
                         diff_res += line + "\n"
 
                 if diff_res != "":
-                    if args.discord_webhook_url:
-                        requests.post(args.discord_webhook_url, json={"content": f"UPDATED: {url}\n```{diff_res}```"})
+                    if discord_webhook_url:
+                        requests.post(discord_webhook_url, json={"content": f"UPDATED: {url}\n```{diff_res}```"})
                     else:
                         print(f"UPDATED: {url}\n{diff_res}")
                         print()
+            else:
+                if discord_webhook_url:
+                    requests.post(discord_webhook_url, json={"content": f"NEW: {url}"})
+                else:
+                    print(f"NEW: {url}")
+                    print()
 
             if not args.no_archive:
                 filepath.open("wb").write(response.content)
