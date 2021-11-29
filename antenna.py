@@ -4,7 +4,10 @@ import hashlib
 import re
 from pathlib import Path
 
+import feedparser
 import requests
+
+from rss_utils import *
 
 BASE_DIR_PATH = Path(__file__).parent
 ARCHIVE_DIR_PATH = BASE_DIR_PATH / "archive"
@@ -39,46 +42,74 @@ def main():
     for task in tasks:
         url = task[0].strip()
         pattern = task[1].strip() if len(task) > 1 else None
-
-        response = requests.get(url)
-
-        if response.status_code != 200:
-            continue
-
-        if not pattern:
-            content = response.content.decode().split("\n")
-        else:
-            content = re.findall(pattern, response.content.decode())
-        if args.show:
-            print(f"content = {content}")
         filename = hashlib.md5(url.encode()).hexdigest()[:8]
         filepath = ARCHIVE_DIR_PATH / filename
 
-        if filepath.exists():
-            if not pattern:
-                prev_content = filepath.open("r").read().split("\n")
+        if pattern == "rss":
+            entries = get_entries(url)
+
+            if len(entries) == 0:
+                continue
+
+            if filepath.exists():
+                known_titles = [line.strip() for line in filepath.open().readlines()]
             else:
-                prev_content = re.findall(pattern, filepath.open("r").read())
+                known_titles = []
+                
+            for title, url, description in entries[::-1]:
+                if title in known_titles[-len(entries):]:
+                    continue
 
-            diff = difflib.unified_diff(prev_content, content, "Previous", "Current", n=args.number_of_context_lines, lineterm="")
-            diff_res = ""
-            for line in diff:
-                n = args.line_length_limit
-                if len(line) > n:
-                    diff_res += line[:n//2] + " ... " + line[-n//2:] + "\n"
-                else:
-                    diff_res += line + "\n"
-
-            if diff_res != "":
                 if args.discord_webhook_url:
-                    requests.post(args.discord_webhook_url, json={"content": f"UPDATED: {url}\n```{diff_res}```"})
+                    requests.post(args.discord_webhook_url, json={"content": f"{title}\n{url}\n```{description}```"})
                 else:
-                    print(f"UPDATED: {url}")
-                    print(diff_res)
+                    print(title)
+                    print(url)
+                    print(description)
                     print()
 
-        if not args.no_archive:
-            filepath.open("wb").write(response.content)
+                if not args.no_archive:
+                    filepath.open("a").write(title + "\n")
+
+        else:
+            response = requests.get(url)
+
+            if response.status_code != 200:
+                continue
+
+            if not pattern:
+                content = response.content.decode().split("\n")
+            else:
+                content = re.findall(pattern, response.content.decode())
+
+            if args.show:
+                print(f"content = {content}")
+
+            if filepath.exists():
+                if not pattern:
+                    prev_content = filepath.open("r").read().split("\n")
+                else:
+                    prev_content = re.findall(pattern, filepath.open("r").read())
+
+                diff = difflib.unified_diff(prev_content, content, "Previous", "Current", n=args.number_of_context_lines, lineterm="")
+                diff_res = ""
+                for line in diff:
+                    n = args.line_length_limit
+                    if len(line) > n:
+                        diff_res += line[:n//2] + " ... " + line[-n//2:] + "\n"
+                    else:
+                        diff_res += line + "\n"
+
+                if diff_res != "":
+                    if args.discord_webhook_url:
+                        requests.post(args.discord_webhook_url, json={"content": f"UPDATED: {url}\n```{diff_res}```"})
+                    else:
+                        print(f"UPDATED: {url}")
+                        print(diff_res)
+                        print()
+
+            if not args.no_archive:
+                filepath.open("wb").write(response.content)
 
 
 if __name__ == "__main__":
