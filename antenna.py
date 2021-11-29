@@ -30,14 +30,14 @@ def main():
     parser.add_argument("--show", action="store_true", help="Show content")
     args = parser.parse_args()
 
-    deepl_api_key_filepath = Path("deepl_api_key.txt")
+    deepl_api_key_filepath = BASE_DIR_PATH / "deepl_api_key.txt"
     if deepl_api_key_filepath.exists():
         deepl_api_key = deepl_api_key_filepath.open().read().strip()
         translator = deepl.Translator(deepl_api_key)
     else:
         translator = None
 
-    discord_webhook_url_filepath = Path("discord_webhook_url.txt")
+    discord_webhook_url_filepath = BASE_DIR_PATH / "discord_webhook_url.txt"
     if args.discord and discord_webhook_url_filepath.exists():
         discord_webhook_url = discord_webhook_url_filepath.open().read().strip()
     elif args.discord_webhook_url:
