@@ -19,7 +19,7 @@ def main():
     ARCHIVE_DIR_PATH.mkdir(exist_ok=True)
 
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument("--url_file", type=str, default="url.txt", help="URL list")
+    parser.add_argument("--url_file", type=str, default="url.json", help="URL list")
     parser.add_argument("--discord", action="store_true", help="Notify Discord using local webhook url file")
     parser.add_argument("--discord_webhook_url", type=str, help="Discord webhook URL")
     parser.add_argument("--sample", action="store_true", help="Use sample URL list")
