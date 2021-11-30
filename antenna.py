@@ -84,7 +84,7 @@ def main():
                 known_titles = []
 
             for title, url, description in entries[::-1]:
-                if title in known_titles[-len(entries):]:
+                if title in known_titles:
                     continue
 
                 if translate and translator is not None:
