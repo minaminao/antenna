@@ -66,11 +66,12 @@ def main():
         pattern = task.get("pattern", None)
         translate = task.get("translate", False)
         count = task.get("count", False)
-
         if url is not None:
-            filename = hashlib.md5(url.encode()).hexdigest()[:8]
+            task_name = url
         else:
-            filename = hashlib.md5(str(command).encode()).hexdigest()[:8]
+            task_name = str(command)
+
+        filename = hashlib.md5(task_name.encode()).hexdigest()[:8]
         filepath = ARCHIVE_DIR_PATH / filename
 
         if page_type == "rss":
@@ -141,15 +142,15 @@ def main():
 
                 if diff_res != "":
                     if discord_webhook_url:
-                        requests.post(discord_webhook_url, json={"content": f"UPDATED: {url}\n```{diff_res}```"})
+                        requests.post(discord_webhook_url, json={"content": f"UPDATED: {task_name}\n```{diff_res}```"})
                     else:
-                        print(f"UPDATED: {url}\n{diff_res}")
+                        print(f"UPDATED: {task_name}\n{diff_res}")
                         print()
             else:
                 if discord_webhook_url:
-                    requests.post(discord_webhook_url, json={"content": f"NEW: {url}"})
+                    requests.post(discord_webhook_url, json={"content": f"NEW: {task_name}"})
                 else:
-                    print(f"NEW: {url}")
+                    print(f"NEW: {task_name}")
                     print()
 
             if not args.no_archive:
