@@ -3,6 +3,7 @@ import difflib
 import hashlib
 import json
 import re
+import subprocess
 from pathlib import Path
 
 import deepl
@@ -57,14 +58,19 @@ def main():
             f.unlink()
 
     for task in tasks:
-        url = task["url"].strip()
+        url = task.get("url", None)
+        if url is not None: url = url.strip()
+        command = task.get("command", None)
         page_type = task.get("type", None)
         page_title = task.get("title", None)
         pattern = task.get("pattern", None)
         translate = task.get("translate", False)
         count = task.get("count", False)
 
-        filename = hashlib.md5(url.encode()).hexdigest()[:8]
+        if url is not None:
+            filename = hashlib.md5(url.encode()).hexdigest()[:8]
+        else:
+            filename = hashlib.md5(str(command).encode()).hexdigest()[:8]
         filepath = ARCHIVE_DIR_PATH / filename
 
         if page_type == "rss":
@@ -98,17 +104,22 @@ def main():
 
                 if not args.no_archive:
                     filepath.open("a").write(title + "\n")
-
         else:
-            response = requests.get(url)
+            if page_type == "command":
+                response = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+                raw_content = response.stdout
+            else:
+                response = requests.get(url)
 
-            if response.status_code != 200:
-                continue
+                if response.status_code != 200:
+                    continue
+
+                raw_content = response.content
 
             if not pattern:
-                content = response.content.decode().split("\n")
+                content = raw_content.decode().split("\n")
             else:
-                content = re.findall(pattern, response.content.decode())
+                content = re.findall(pattern, raw_content.decode())
 
             if args.show:
                 print(f"content = {content}")
@@ -142,7 +153,7 @@ def main():
                     print()
 
             if not args.no_archive:
-                filepath.open("wb").write(response.content)
+                filepath.open("wb").write(raw_content)
 
 
 if __name__ == "__main__":
