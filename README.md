@@ -7,18 +7,23 @@ url.jsonに以下のように記述。
 ```json
 [
     {
+        "task_name": "utc",
         "type": "text",
         "url":"http://worldclockapi.com/api/json/utc/now"
     },
     {
+        "task_name": "est",
         "type": "text",
         "url":"http://worldclockapi.com/api/json/est/now",
-        "pattern": "\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}"
+        "pattern": "\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}",
+        "disable": true
     },
     {
+        "task_name": "oreilly",
         "type": "rss",
         "url": "http://feeds.feedburner.com/oreilly/newbooks",
-        "title": "O'Reilly New Books"
+        "title": "O'Reilly New Books",
+        "count": 1
     }
 ]
 ```
