@@ -58,7 +58,11 @@ def main():
 
     for task in tasks:
         url = task.get("url", None)
-        if url is not None: url = url.strip()
+        if url is not None: 
+            url = url.strip()
+        disable = task.get("disable", False)
+        if disable:
+            continue
         command = task.get("command", None)
         page_type = task.get("type", None)
         page_title = task.get("title", None)
