@@ -33,7 +33,7 @@ def main():
     parser.add_argument("--clear", action="store_true", help="Clear archive directory")
     parser.add_argument("--line_length_limit", type=int, default=100, help="Line length limit of diff")
     parser.add_argument("--number_of_context_lines", type=int, default=1, help="Number of context lines")
-    parser.add_argument("--task_name", type=str, help="Select a task name")
+    parser.add_argument("--task_name", type=str, help="Select a task")
     parser.add_argument("--no_archive", action="store_true", help="Do not archive sites")
     parser.add_argument("--show", action="store_true", help="Show content")
     args = parser.parse_args()
