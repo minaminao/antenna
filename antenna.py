@@ -2,16 +2,17 @@ import argparse
 import difflib
 import hashlib
 import json
+import os
 import re
 import subprocess
-import os
+import sys
 from pathlib import Path
 
 import deepl
 import requests
+from dotenv import load_dotenv
 
 from rss_utils import *
-from dotenv import load_dotenv
 
 load_dotenv()
 
@@ -68,16 +69,20 @@ def main():
         if args.task_name and args.task_name != task_name:
             continue
         command = task.get("command", None)
+        script = task.get("script", None)
         page_type = task.get("type", None)
         page_title = task.get("title", None)
         pattern = task.get("pattern", None)
         translate = task.get("translate", False)
         count = task.get("count", False)
         discord_channel_id = task.get("discord_channel_id", None)
-        if url is not None:
+
+        if task_name is None:
             task_name = url
-        else:
+        if task_name is None:
             task_name = str(command)
+        if task_name is None:
+            task_name = str(script)
 
         filename = hashlib.md5(task_name.encode()).hexdigest()[:8]
         filepath = ARCHIVE_DIR_PATH / filename
@@ -119,6 +124,11 @@ def main():
         else:
             if page_type == "command":
                 response = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+                raw_content = response.stdout
+            elif page_type == "python script":
+                print([sys.executable, script]
+                )
+                response = subprocess.run([sys.executable, script], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
                 raw_content = response.stdout
             else:
                 response = requests.get(url)
