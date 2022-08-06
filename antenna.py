@@ -4,12 +4,16 @@ import hashlib
 import json
 import re
 import subprocess
+import os
 from pathlib import Path
 
 import deepl
 import requests
 
 from rss_utils import *
+from dotenv import load_dotenv
+
+load_dotenv()
 
 BASE_DIR_PATH = Path(__file__).parent
 ARCHIVE_DIR_PATH = BASE_DIR_PATH / "archive"
@@ -23,7 +27,7 @@ def main():
     parser.add_argument("--discord_webhook", action="store_true", help="Notify Discord using local webhook url file")
     parser.add_argument("--discord_webhook_url", type=str, help="Discord webhook URL")
     parser.add_argument("--discord_bot", action="store_true", help="Notify Discord using discord bot")
-    parser.add_argument("--discord_bot_key", type=str, help="Discord bot API key")
+    parser.add_argument("--discord_bot_api_key", type=str, help="Discord bot API key")
     parser.add_argument("--sample", action="store_true", help="Use sample URL list")
     parser.add_argument("--clear", action="store_true", help="Clear archive directory")
     parser.add_argument("--line_length_limit", type=int, default=100, help="Line length limit of diff")
@@ -33,20 +37,14 @@ def main():
     parser.add_argument("--show", action="store_true", help="Show content")
     args = parser.parse_args()
 
-    deepl_api_key_filepath = BASE_DIR_PATH / "deepl_api_key.txt"
-    if deepl_api_key_filepath.exists():
-        deepl_api_key = deepl_api_key_filepath.open().read().strip()
-        translator = deepl.Translator(deepl_api_key)
-    else:
-        translator = None
-
-    discord_webhook_url_filepath = BASE_DIR_PATH / "discord_webhook_url.txt"
-    if args.discord_webhook and discord_webhook_url_filepath.exists():
-        discord_webhook_url = discord_webhook_url_filepath.open().read().strip()
-    elif args.discord_webhook_url:
+    deepl_api_key = os.getenv("DEEPL_API_KEY")
+    translator = deepl.Translator(deepl_api_key) if deepl_api_key else None
+    discord_webhook_url = os.getenv("DISCORD_WEBHOOK_URL")
+    if args.discord_webhook_url:
         discord_webhook_url = args.discord_webhook_url
-    else:
-        discord_webhook_url = None
+    discord_bot_api_key = os.getenv("DISCORD_BOT_API_KEY")
+    if args.discord_bot_api_key:
+        discord_bot_api_key = args.discord_bot_api_key
 
     if args.sample:
         SITEURL_SAMPLE_PATH = BASE_DIR_PATH / "url_sample.json"
@@ -107,7 +105,7 @@ def main():
                 if translate and translator is not None:
                     description = str(translator.translate_text(description, target_lang="JA"))
 
-                if discord_webhook_url:
+                if args.discord_webhook:
                     requests.post(discord_webhook_url, json={
                         "content": f"[{page_title}] {title} {url}\n```{description}```",
                         "channel_id": discord_channel_id
@@ -154,7 +152,7 @@ def main():
                         diff_res += line + "\n"
 
                 if diff_res != "":
-                    if discord_webhook_url:
+                    if args.discord_webhook:
                         requests.post(discord_webhook_url, json={
                             "content": f"UPDATED: {task_name}\n```{diff_res}```",
                             "channel_id": discord_channel_id
@@ -163,7 +161,7 @@ def main():
                         print(f"UPDATED: {task_name}\n{diff_res}")
                         print()
             else:
-                if discord_webhook_url:
+                if args.discord_webhook:
                     requests.post(discord_webhook_url, json={
                         "content": f"NEW: {task_name}",
                         "channel_id": discord_channel_id

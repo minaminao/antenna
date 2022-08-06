@@ -1,9 +1,7 @@
 archive
 scripts
 url.json
-deepl_api_key.txt
-discord_webhook_url.txt
-discord_bot_api_key.txt
+.env
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
