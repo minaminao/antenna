@@ -20,8 +20,10 @@ def main():
 
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("--url_file", type=str, default="url.json", help="URL list")
-    parser.add_argument("--discord", action="store_true", help="Notify Discord using local webhook url file")
+    parser.add_argument("--discord_webhook", action="store_true", help="Notify Discord using local webhook url file")
     parser.add_argument("--discord_webhook_url", type=str, help="Discord webhook URL")
+    parser.add_argument("--discord_bot", action="store_true", help="Notify Discord using discord bot")
+    parser.add_argument("--discord_bot_key", type=str, help="Discord bot API key")
     parser.add_argument("--sample", action="store_true", help="Use sample URL list")
     parser.add_argument("--clear", action="store_true", help="Clear archive directory")
     parser.add_argument("--line_length_limit", type=int, default=100, help="Line length limit of diff")
@@ -39,7 +41,7 @@ def main():
         translator = None
 
     discord_webhook_url_filepath = BASE_DIR_PATH / "discord_webhook_url.txt"
-    if args.discord and discord_webhook_url_filepath.exists():
+    if args.discord_webhook and discord_webhook_url_filepath.exists():
         discord_webhook_url = discord_webhook_url_filepath.open().read().strip()
     elif args.discord_webhook_url:
         discord_webhook_url = args.discord_webhook_url
@@ -73,6 +75,7 @@ def main():
         pattern = task.get("pattern", None)
         translate = task.get("translate", False)
         count = task.get("count", False)
+        discord_channel_id = task.get("discord_channel_id", None)
         if url is not None:
             task_name = url
         else:
@@ -105,7 +108,10 @@ def main():
                     description = str(translator.translate_text(description, target_lang="JA"))
 
                 if discord_webhook_url:
-                    requests.post(discord_webhook_url, json={"content": f"[{page_title}] {title} {url}\n```{description}```"})
+                    requests.post(discord_webhook_url, json={
+                        "content": f"[{page_title}] {title} {url}\n```{description}```",
+                        "channel_id": discord_channel_id
+                    })
                 else:
                     print(f"[{page_title}] {title} {url}\n{description}")
                     print()
@@ -149,13 +155,19 @@ def main():
 
                 if diff_res != "":
                     if discord_webhook_url:
-                        requests.post(discord_webhook_url, json={"content": f"UPDATED: {task_name}\n```{diff_res}```"})
+                        requests.post(discord_webhook_url, json={
+                            "content": f"UPDATED: {task_name}\n```{diff_res}```",
+                            "channel_id": discord_channel_id
+                        })
                     else:
                         print(f"UPDATED: {task_name}\n{diff_res}")
                         print()
             else:
                 if discord_webhook_url:
-                    requests.post(discord_webhook_url, json={"content": f"NEW: {task_name}"})
+                    requests.post(discord_webhook_url, json={
+                        "content": f"NEW: {task_name}",
+                        "channel_id": discord_channel_id
+                    })
                 else:
                     print(f"NEW: {task_name}")
                     print()
