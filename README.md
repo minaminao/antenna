@@ -15,7 +15,7 @@ url.jsonに以下のように記述。
         "url":"http://worldclockapi.com/api/json/est/now",
         "pattern": "\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}"
     },
-        {
+    {
         "type": "rss",
         "url": "http://feeds.feedburner.com/oreilly/newbooks",
         "title": "O'Reilly New Books"
