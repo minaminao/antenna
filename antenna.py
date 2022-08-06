@@ -26,8 +26,8 @@ def main():
     parser.add_argument("--url_file", type=str, default="url.json", help="URL list")
     parser.add_argument("--discord_webhook", action="store_true", help="Notify Discord using local webhook url file")
     parser.add_argument("--discord_webhook_url", type=str, help="Discord webhook URL")
-    parser.add_argument("--discord_bot", action="store_true", help="Notify Discord using discord bot")
-    parser.add_argument("--discord_bot_api_key", type=str, help="Discord bot API key")
+    # parser.add_argument("--discord_bot", action="store_true", help="Notify Discord using discord bot")
+    # parser.add_argument("--discord_bot_api_key", type=str, help="Discord bot API key")
     parser.add_argument("--sample", action="store_true", help="Use sample URL list")
     parser.add_argument("--clear", action="store_true", help="Clear archive directory")
     parser.add_argument("--line_length_limit", type=int, default=100, help="Line length limit of diff")
@@ -42,9 +42,9 @@ def main():
     discord_webhook_url = os.getenv("DISCORD_WEBHOOK_URL")
     if args.discord_webhook_url:
         discord_webhook_url = args.discord_webhook_url
-    discord_bot_api_key = os.getenv("DISCORD_BOT_API_KEY")
-    if args.discord_bot_api_key:
-        discord_bot_api_key = args.discord_bot_api_key
+    # discord_bot_api_key = os.getenv("DISCORD_BOT_API_KEY")
+    # if args.discord_bot_api_key:
+    #     discord_bot_api_key = args.discord_bot_api_key
 
     if args.sample:
         SITEURL_SAMPLE_PATH = BASE_DIR_PATH / "url_sample.json"
