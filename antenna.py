@@ -26,6 +26,7 @@ def main():
     parser.add_argument("--clear", action="store_true", help="Clear archive directory")
     parser.add_argument("--line_length_limit", type=int, default=100, help="Line length limit of diff")
     parser.add_argument("--number_of_context_lines", type=int, default=1, help="Number of context lines")
+    parser.add_argument("--task_name", type=str, help="Select a task name")
     parser.add_argument("--no_archive", action="store_true", help="Do not archive sites")
     parser.add_argument("--show", action="store_true", help="Show content")
     args = parser.parse_args()
@@ -62,6 +63,9 @@ def main():
             url = url.strip()
         disable = task.get("disable", False)
         if disable:
+            continue
+        task_name = task.get("task_name", False)
+        if args.task_name and args.task_name != task_name:
             continue
         command = task.get("command", None)
         page_type = task.get("type", None)
