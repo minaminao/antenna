@@ -34,7 +34,7 @@ cronを設定。
 $ crontab -e
 ```
 ```
-* * * * * <Pythonの絶対パス> <antenna.pyの絶対パス> --discord_webhook_url <Discord webhook URL>
+* * * * * <Pythonの絶対パス> <antenna.pyの絶対パス> --discord_webhook --discord_webhook_url <Discord webhook URL>
 ```
 
 ## Sample Output
@@ -58,13 +58,13 @@ UPDATED: http://worldclockapi.com/api/json/est/now
 ## Options
 
 ```
-usage: antenna.py [-h] [--url_file URL_FILE] [--discord] [--discord_webhook_url DISCORD_WEBHOOK_URL] [--sample] [--clear] [--line_length_limit LINE_LENGTH_LIMIT]
-                  [--number_of_context_lines NUMBER_OF_CONTEXT_LINES] [--no_archive] [--show]
+usage: antenna.py [-h] [--url_file URL_FILE] [--discord_webhook] [--discord_webhook_url DISCORD_WEBHOOK_URL] [--sample] [--clear] [--line_length_limit LINE_LENGTH_LIMIT]
+                  [--number_of_context_lines NUMBER_OF_CONTEXT_LINES] [--task_name TASK_NAME] [--no_archive] [--show]
 
 options:
   -h, --help            show this help message and exit
-  --url_file URL_FILE   URL list (default: url.txt)
-  --discord             Notify Discord using local webhook url file (default: False)
+  --url_file URL_FILE   URL list (default: url.json)
+  --discord_webhook     Notify Discord using local webhook url file (default: False)
   --discord_webhook_url DISCORD_WEBHOOK_URL
                         Discord webhook URL (default: None)
   --sample              Use sample URL list (default: False)
@@ -73,6 +73,8 @@ options:
                         Line length limit of diff (default: 100)
   --number_of_context_lines NUMBER_OF_CONTEXT_LINES
                         Number of context lines (default: 1)
+  --task_name TASK_NAME
+                        Select a task (default: None)
   --no_archive          Do not archive sites (default: False)
   --show                Show content (default: False)
 ```
