@@ -7,7 +7,6 @@ import subprocess
 from pathlib import Path
 
 import deepl
-import feedparser
 import requests
 
 from rss_utils import *
