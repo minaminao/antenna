@@ -19,6 +19,11 @@ load_dotenv()
 BASE_DIR_PATH = Path(__file__).parent
 ARCHIVE_DIR_PATH = BASE_DIR_PATH / "archive"
 
+def post(content, discord_webhook_url, discord_channel_id):
+    requests.post(discord_webhook_url, json={
+        "content": content,
+        "channel_id": discord_channel_id
+    })
 
 def main():
     ARCHIVE_DIR_PATH.mkdir(exist_ok=True)
@@ -32,7 +37,6 @@ def main():
     parser.add_argument("--sample", action="store_true", help="Use sample URL list")
     parser.add_argument("--clear", action="store_true", help="Clear archive directory")
     parser.add_argument("--line_length_limit", type=int, default=100, help="Line length limit of diff")
-    parser.add_argument("--number_of_context_lines", type=int, default=1, help="Number of context lines")
     parser.add_argument("--task_name", type=str, help="Select a task")
     parser.add_argument("--no_archive", action="store_true", help="Do not archive sites")
     parser.add_argument("--show", action="store_true", help="Show content")
@@ -76,6 +80,8 @@ def main():
         translate = task.get("translate", False)
         count = task.get("count", False)
         discord_channel_id = task.get("discord_channel_id", None)
+        number_of_context_lines = task.get("number_of_context_lines", 1)
+        quoted = task.get("quoted", True)
 
         if task_name is None:
             task_name = url
@@ -111,10 +117,10 @@ def main():
                     description = str(translator.translate_text(description, target_lang="JA"))
 
                 if args.discord_webhook:
-                    requests.post(discord_webhook_url, json={
-                        "content": f"[{page_title}] {title} {url}\n```{description}```",
-                        "channel_id": discord_channel_id
-                    })
+                    if quoted:
+                        post(f"[{page_title}] {title} {url}\n```{description}```", discord_webhook_url, discord_channel_id)
+                    else:
+                        post(f"[{page_title}] {title} {url}\n{description}", discord_webhook_url, discord_channel_id)
                 else:
                     print(f"[{page_title}] {title} {url}\n{description}")
                     print()
@@ -150,7 +156,7 @@ def main():
                 else:
                     prev_content = re.findall(pattern, filepath.open("r").read())
 
-                diff = difflib.unified_diff(prev_content, content, "Previous", "Current", n=args.number_of_context_lines, lineterm="")
+                diff = difflib.unified_diff(prev_content, content, "Previous", "Current", n=number_of_context_lines, lineterm="")
                 diff_res = ""
                 for line in diff:
                     n = args.line_length_limit
@@ -161,19 +167,16 @@ def main():
 
                 if diff_res != "":
                     if args.discord_webhook:
-                        requests.post(discord_webhook_url, json={
-                            "content": f"UPDATED: {task_name}\n```{diff_res}```",
-                            "channel_id": discord_channel_id
-                        })
+                        if quoted:
+                            post(f"UPDATED: {task_name}\n```{diff_res}```", discord_webhook_url, discord_channel_id)
+                        else:
+                            post(f"UPDATED: {task_name}\n{diff_res}", discord_webhook_url, discord_channel_id)
                     else:
                         print(f"UPDATED: {task_name}\n{diff_res}")
                         print()
             else:
                 if args.discord_webhook:
-                    requests.post(discord_webhook_url, json={
-                        "content": f"NEW: {task_name}",
-                        "channel_id": discord_channel_id
-                    })
+                    post(f"NEW: {task_name}", discord_webhook_url, discord_channel_id)
                 else:
                     print(f"NEW: {task_name}")
                     print()
