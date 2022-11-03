@@ -78,3 +78,6 @@ options:
   --no_archive          Do not archive sites (default: False)
   --show                Show content (default: False)
 ```
+
+## 簡易テスト
+

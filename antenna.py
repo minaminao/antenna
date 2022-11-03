@@ -34,7 +34,6 @@ def main():
     parser.add_argument("--discord_webhook_url", type=str, help="Discord webhook URL")
     # parser.add_argument("--discord_bot", action="store_true", help="Notify Discord using discord bot")
     # parser.add_argument("--discord_bot_api_key", type=str, help="Discord bot API key")
-    parser.add_argument("--sample", action="store_true", help="Use sample URL list")
     parser.add_argument("--clear", action="store_true", help="Clear archive directory")
     parser.add_argument("--line_length_limit", type=int, default=100, help="Line length limit of diff")
     parser.add_argument("--task_name", type=str, help="Select a task")
@@ -51,12 +50,8 @@ def main():
     # if args.discord_bot_api_key:
     #     discord_bot_api_key = args.discord_bot_api_key
 
-    if args.sample:
-        SITEURL_SAMPLE_PATH = BASE_DIR_PATH / "url_sample.json"
-        tasks = json.load(SITEURL_SAMPLE_PATH.open())
-    else:
-        SITEURL_PATH = BASE_DIR_PATH / args.url_file
-        tasks = json.load(SITEURL_PATH.open())
+    SITEURL_PATH = BASE_DIR_PATH / args.url_file
+    tasks = json.load(SITEURL_PATH.open())
 
     if args.clear:
         for f in ARCHIVE_DIR_PATH.glob("*"):
@@ -93,96 +88,97 @@ def main():
         filename = hashlib.md5(task_name.encode()).hexdigest()[:8]
         filepath = ARCHIVE_DIR_PATH / filename
 
-        if page_type == "rss":
-            feed_title, entries = get_entries(url)
-            if page_title is None:
-                page_title = feed_title
+        match page_type:
+            case "rss":
+                feed_title, entries = get_entries(url)
+                if page_title is None:
+                    page_title = feed_title
 
-            if len(entries) == 0:
-                continue
-
-            if count:
-                entries = entries[:count]
-
-            if filepath.exists():
-                known_titles = [line.strip() for line in filepath.open().readlines()]
-            else:
-                known_titles = []
-
-            for title, url, description in entries[::-1]:
-                if title in known_titles:
+                if len(entries) == 0:
                     continue
 
-                if translate and translator is not None:
-                    description = str(translator.translate_text(description, target_lang="JA"))
+                if count:
+                    entries = entries[:count]
 
-                if args.discord_webhook:
-                    if quoted:
-                        post(f"[{page_title}] {title} {url}\n```{description}```", discord_webhook_url, discord_channel_id)
-                    else:
-                        post(f"[{page_title}] {title} {url}\n{description}", discord_webhook_url, discord_channel_id)
+                if filepath.exists():
+                    known_titles = [line.strip() for line in filepath.open().readlines()]
                 else:
-                    print(f"[{page_title}] {title} {url}\n{description}")
-                    print()
+                    known_titles = []
 
-                if not args.no_archive:
-                    filepath.open("a").write(title + "\n")
-        else:
-            if page_type == "command":
-                response = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
-                raw_content = response.stdout
-            elif page_type == "python script":
-                response = subprocess.run([sys.executable, BASE_DIR_PATH / script], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
-                raw_content = response.stdout
-            else:
-                response = requests.get(url)
+                for title, url, description in entries[::-1]:
+                    if title in known_titles:
+                        continue
 
-                if response.status_code != 200:
-                    continue
+                    if translate and translator is not None:
+                        description = str(translator.translate_text(description, target_lang="JA"))
 
-                raw_content = response.content
-
-            if not pattern:
-                content = raw_content.decode().split("\n")
-            else:
-                content = re.findall(pattern, raw_content.decode())
-
-            if args.show:
-                print(f"content = {content}")
-
-            if filepath.exists():
-                if not pattern:
-                    prev_content = filepath.open("r").read().split("\n")
-                else:
-                    prev_content = re.findall(pattern, filepath.open("r").read())
-
-                diff = difflib.unified_diff(prev_content, content, "Previous", "Current", n=number_of_context_lines, lineterm="")
-                diff_res = ""
-                for line in diff:
-                    n = args.line_length_limit
-                    if len(line) > n:
-                        diff_res += line[:n // 2] + " ... " + line[-n // 2:] + "\n"
-                    else:
-                        diff_res += line + "\n"
-
-                if diff_res != "":
                     if args.discord_webhook:
                         if quoted:
-                            post(f"UPDATED: {task_name}\n```{diff_res}```", discord_webhook_url, discord_channel_id)
+                            post(f"[{page_title}] {title} {url}\n```{description}```", discord_webhook_url, discord_channel_id)
                         else:
-                            post(f"UPDATED: {task_name}\n{diff_res}", discord_webhook_url, discord_channel_id)
+                            post(f"[{page_title}] {title} {url}\n{description}", discord_webhook_url, discord_channel_id)
                     else:
-                        print(f"UPDATED: {task_name}\n{diff_res}")
+                        print(f"[{page_title}] {title} {url}\n{description}")
                         print()
-            else:
-                if args.discord_webhook:
-                    post(f"NEW: {task_name}", discord_webhook_url, discord_channel_id)
-                else:
-                    print(f"NEW: {task_name}")
-                    print()
 
-            if not args.no_archive:
-                filepath.open("wb").write(raw_content)
+                    if not args.no_archive:
+                        filepath.open("a").write(title + "\n")
+            case _:
+                if page_type == "command":
+                    response = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+                    raw_content = response.stdout
+                elif page_type == "python script":
+                    response = subprocess.run([sys.executable, BASE_DIR_PATH / script], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+                    raw_content = response.stdout
+                else:
+                    response = requests.get(url)
+
+                    if response.status_code != 200:
+                        continue
+
+                    raw_content = response.content
+
+                if not pattern:
+                    content = raw_content.decode().split("\n")
+                else:
+                    content = re.findall(pattern, raw_content.decode())
+
+                if args.show:
+                    print(f"content = {content}")
+
+                if filepath.exists():
+                    if not pattern:
+                        prev_content = filepath.open("r").read().split("\n")
+                    else:
+                        prev_content = re.findall(pattern, filepath.open("r").read())
+
+                    diff = difflib.unified_diff(prev_content, content, "Previous", "Current", n=number_of_context_lines, lineterm="")
+                    diff_res = ""
+                    for line in diff:
+                        n = args.line_length_limit
+                        if len(line) > n:
+                            diff_res += line[:n // 2] + " ... " + line[-n // 2:] + "\n"
+                        else:
+                            diff_res += line + "\n"
+
+                    if diff_res != "":
+                        if args.discord_webhook:
+                            if quoted:
+                                post(f"UPDATED: {task_name}\n```{diff_res}```", discord_webhook_url, discord_channel_id)
+                            else:
+                                post(f"UPDATED: {task_name}\n{diff_res}", discord_webhook_url, discord_channel_id)
+                        else:
+                            print(f"UPDATED: {task_name}\n{diff_res}")
+                            print()
+                else:
+                    if args.discord_webhook:
+                        post(f"NEW: {task_name}", discord_webhook_url, discord_channel_id)
+                    else:
+                        print(f"NEW: {task_name}")
+                        print()
+
+                if not args.no_archive:
+                    filepath.open("wb").write(raw_content)
 
 
 if __name__ == "__main__":
