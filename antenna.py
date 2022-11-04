@@ -43,23 +43,24 @@ def main():
 
     default_discord_webhook_url = os.getenv("DISCORD_WEBHOOK_URL")
 
-    SITEURL_PATH = BASE_DIR_PATH / args.task_file
-    tasks = json.load(SITEURL_PATH.open())
+    TASK_FILE_PATH = BASE_DIR_PATH / args.task_file
+    tasks = json.load(TASK_FILE_PATH.open())
 
     if args.clear:
         for f in ARCHIVE_DIR_PATH.glob("*"):
             f.unlink()
 
     for task in tasks:
-        url = task.get("url", None)
-        if url is not None: 
-            url = url.strip()
-        disable = task.get("disable", False)
-        if disable:
-            continue
         task_name = task.get("task_name", False)
         if args.task_name and args.task_name != task_name:
             continue
+        disable = task.get("disable", False)
+        if disable:
+            continue
+        
+        url = task.get("url", None)
+        if url is not None: 
+            url = url.strip()
         command = task.get("command", None)
         script = task.get("script", None)
         page_type = task.get("type", None)
@@ -78,6 +79,8 @@ def main():
             task_name = str(command)
         if task_name is None:
             task_name = str(script)
+        
+        print(f"[+] {task_name}")
 
         filename = hashlib.md5(task_name.encode()).hexdigest()[:8]
         filepath = ARCHIVE_DIR_PATH / filename
@@ -146,7 +149,7 @@ def main():
                     else:
                         prev_content = re.findall(pattern, filepath.open("r").read())
 
-                    diff = difflib.unified_diff(prev_content, content, "Previous", "Current", n=number_of_context_lines, lineterm="")
+                    diff = list(difflib.unified_diff(prev_content, content, "", "", n=number_of_context_lines, lineterm=""))[2:]
                     diff_res = ""
                     for line in diff:
                         n = args.line_length_limit
