@@ -29,28 +29,21 @@ def main():
     ARCHIVE_DIR_PATH.mkdir(exist_ok=True)
 
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument("--url_file", type=str, default="url.json", help="URL list")
-    parser.add_argument("--discord_webhook", action="store_true", help="Notify Discord using local webhook url file")
-    parser.add_argument("--discord_webhook_url", type=str, help="Discord webhook URL")
-    # parser.add_argument("--discord_bot", action="store_true", help="Notify Discord using discord bot")
-    # parser.add_argument("--discord_bot_api_key", type=str, help="Discord bot API key")
+    parser.add_argument("--task-file", type=str, default="task.json", help="URL list")
+    parser.add_argument("--discord-webhook", action="store_true", help="Post messages to Discord servers")
     parser.add_argument("--clear", action="store_true", help="Clear archive directory")
-    parser.add_argument("--line_length_limit", type=int, default=100, help="Line length limit of diff")
-    parser.add_argument("--task_name", type=str, help="Select a task")
-    parser.add_argument("--no_archive", action="store_true", help="Do not archive sites")
+    parser.add_argument("--line-length-limit", type=int, default=100, help="Line length limit of diff")
+    parser.add_argument("--task-name", type=str, help="Select a task")
+    parser.add_argument("--no-archive", action="store_true", help="Do not archive sites")
     parser.add_argument("--show", action="store_true", help="Show content")
     args = parser.parse_args()
 
     deepl_api_key = os.getenv("DEEPL_API_KEY")
-    translator = deepl.Translator(deepl_api_key) if deepl_api_key else None
-    discord_webhook_url = os.getenv("DISCORD_WEBHOOK_URL")
-    if args.discord_webhook_url:
-        discord_webhook_url = args.discord_webhook_url
-    # discord_bot_api_key = os.getenv("DISCORD_BOT_API_KEY")
-    # if args.discord_bot_api_key:
-    #     discord_bot_api_key = args.discord_bot_api_key
+    translator = deepl.Translator(deepl_api_key) if deepl_api_key is not None else None
 
-    SITEURL_PATH = BASE_DIR_PATH / args.url_file
+    default_discord_webhook_url = os.getenv("DISCORD_WEBHOOK_URL")
+
+    SITEURL_PATH = BASE_DIR_PATH / args.task_file
     tasks = json.load(SITEURL_PATH.open())
 
     if args.clear:
@@ -77,6 +70,7 @@ def main():
         discord_channel_id = task.get("discord_channel_id", None)
         number_of_context_lines = task.get("number_of_context_lines", 1)
         quoted = task.get("quoted", True)
+        discord_webhook_url = task.get("discord_webhook_url", default_discord_webhook_url)
 
         if task_name is None:
             task_name = url

@@ -16,6 +16,7 @@
         "type": "rss",
         "url": "http://feeds.feedburner.com/oreilly/newbooks",
         "title": "O'Reilly New Books",
-        "count": 1
+        "count": 1,
+        "translate": true
     }
 ]

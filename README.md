@@ -3,7 +3,7 @@
 
 ## Usage
 
-url.jsonに以下のように記述。
+task.jsonに以下のように記述。
 ```json
 [
     {
@@ -58,24 +58,20 @@ UPDATED: http://worldclockapi.com/api/json/est/now
 ## Options
 
 ```
-usage: antenna.py [-h] [--url_file URL_FILE] [--discord_webhook] [--discord_webhook_url DISCORD_WEBHOOK_URL] [--sample] [--clear] [--line_length_limit LINE_LENGTH_LIMIT]
-                  [--number_of_context_lines NUMBER_OF_CONTEXT_LINES] [--task_name TASK_NAME] [--no_archive] [--show]
+usage: antenna.py [-h] [--task-file TASK_FILE] [--discord-webhook] [--clear] [--line-length-limit LINE_LENGTH_LIMIT]
+                  [--task-name TASK_NAME] [--no-archive] [--show]
 
 options:
   -h, --help            show this help message and exit
-  --url_file URL_FILE   URL list (default: url.json)
-  --discord_webhook     Notify Discord using local webhook url file (default: False)
-  --discord_webhook_url DISCORD_WEBHOOK_URL
-                        Discord webhook URL (default: None)
-  --sample              Use sample URL list (default: False)
+  --task-file TASK_FILE
+                        URL list (default: task.json)
+  --discord-webhook     Post messages to Discord servers (default: False)
   --clear               Clear archive directory (default: False)
-  --line_length_limit LINE_LENGTH_LIMIT
+  --line-length-limit LINE_LENGTH_LIMIT
                         Line length limit of diff (default: 100)
-  --number_of_context_lines NUMBER_OF_CONTEXT_LINES
-                        Number of context lines (default: 1)
-  --task_name TASK_NAME
+  --task-name TASK_NAME
                         Select a task (default: None)
-  --no_archive          Do not archive sites (default: False)
+  --no-archive          Do not archive sites (default: False)
   --show                Show content (default: False)
 ```
 
