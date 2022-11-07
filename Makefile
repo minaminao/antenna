@@ -10,3 +10,6 @@ test:
 
 clean:
 	rm -rf ./archive
+
+fmt:
+	isort *.py
