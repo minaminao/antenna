@@ -123,9 +123,13 @@ def main():
             case _:
                 if page_type == "command":
                     response = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+                    if response.returncode != 0:
+                        continue
                     raw_content = response.stdout
                 elif page_type == "python script":
                     response = subprocess.run([sys.executable, BASE_DIR_PATH / script], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+                    if response.returncode != 0:
+                        continue
                     raw_content = response.stdout
                 else:
                     response = requests.get(url)
