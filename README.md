@@ -28,7 +28,7 @@ cronを設定。
 $ crontab -e
 ```
 ```
-* * * * * <Pythonの絶対パス> <antenna.pyの絶対パス> --discord_webhook --discord_webhook_url <Discord webhook URL>
+* * * * * <Pythonの絶対パス> <antenna.pyの絶対パス> --discord-webhook
 ```
 
 ## Sample Output

@@ -14,10 +14,10 @@ from dotenv import load_dotenv
 
 from rss_utils import *
 
-load_dotenv()
-
 BASE_DIR_PATH = Path(__file__).parent
 ARCHIVE_DIR_PATH = BASE_DIR_PATH / "archive"
+
+load_dotenv(BASE_DIR_PATH / ".env")
 
 def post(content, discord_webhook_url, discord_channel_id):
     requests.post(discord_webhook_url, json={
