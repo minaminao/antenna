@@ -1,3 +1,5 @@
+all: fmt lint type-check-strict
+
 test-sample:
 	rm -rf ./archive
 	python antenna.py --task-file task_sample.json
@@ -12,4 +14,18 @@ clean:
 	rm -rf ./archive
 
 fmt:
-	isort *.py
+	isort antenna/*.py
+	isort scripts/*.py
+	ruff format .
+
+lint:
+	ruff check .
+
+lint-fix:
+	ruff check . --fix
+
+type-check:
+	mypy antenna --ignore-missing-imports
+
+type-check-strict:
+	mypy antenna --strict --ignore-missing-imports

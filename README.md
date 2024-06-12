@@ -69,5 +69,11 @@ options:
   --show                Show content (default: False)
 ```
 
-## 簡易テスト
+## Development
+
+```
+poetry install
+poetry shell
+antenna
+```
 
