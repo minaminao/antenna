@@ -15,7 +15,6 @@ clean:
 
 fmt:
 	isort antenna/*.py
-	isort scripts/*.py
 	ruff format .
 
 lint:

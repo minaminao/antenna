@@ -169,7 +169,7 @@ def main() -> None:
                         continue
 
                     raw_content = response.content
-                
+
                 else:
                     print(f"Unknown page type: {page_type}")
                     continue
