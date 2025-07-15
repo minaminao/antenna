@@ -162,13 +162,17 @@ def main() -> None:
                     if response.returncode != 0:
                         continue
                     raw_content = response.stdout
-                else:
+                elif page_type == "text":
                     response = requests.get(url)
 
                     if response.status_code != 200:
                         continue
 
                     raw_content = response.content
+                
+                else:
+                    print(f"Unknown page type: {page_type}")
+                    continue
 
                 if not pattern:
                     content = raw_content.decode().split("\n")

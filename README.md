@@ -1,9 +1,19 @@
 # antenna
 サイトを巡回して更新があったらDiscordに教えてくれる君。
 
+## Install
+```
+uv tool install .
+```
+
+Development:
+```
+uv tool install -e .
+```
+
 ## Usage
 
-task.jsonに以下のように記述。
+`task.json` に以下のように記述:
 ```json
 [
     {
@@ -22,7 +32,7 @@ task.jsonに以下のように記述。
 ]
 ```
 
-cronを設定。
+cronを設定:
 
 ```
 $ crontab -e
@@ -68,12 +78,3 @@ options:
   --no-archive          Do not archive sites (default: False)
   --show                Show content (default: False)
 ```
-
-## Development
-
-```
-poetry install
-poetry shell
-antenna
-```
-
