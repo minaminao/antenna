@@ -148,7 +148,7 @@ def main() -> None:
             case _:
                 if page_type == "command":
                     response = subprocess.run(
-                        command, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL
+                        command, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
                     )
                     if response.returncode != 0:
                         continue
