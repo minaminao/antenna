@@ -15,7 +15,7 @@ from dotenv import load_dotenv
 from .rss_utils import get_entries
 
 BASE_DIR_PATH = Path(__file__).parent.parent
-ARCHIVE_DIR_PATH = BASE_DIR_PATH / "archive"
+ARCHIVE_DIR_PATH = Path.home() / ".antenna" / "archive"
 
 load_dotenv(BASE_DIR_PATH / ".env")
 
@@ -27,7 +27,7 @@ def post(content: str, discord_webhook_url: str, discord_channel_id: str) -> Non
 
 
 def main() -> None:
-    ARCHIVE_DIR_PATH.mkdir(exist_ok=True)
+    ARCHIVE_DIR_PATH.mkdir(parents=True, exist_ok=True)
 
     parser = argparse.ArgumentParser(
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
