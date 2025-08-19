@@ -1,14 +1,9 @@
 all: fmt lint type-check-strict
 
-test-sample:
-	rm -rf ./archive
-	python antenna.py --task-file task_sample.json
-	python antenna.py --task-file task_sample.json
-
 test:
 	rm -rf ./archive
-	python antenna.py
-	python antenna.py
+	antenna --task-file task_sample.json
+	antenna --task-file task_sample.json
 
 clean:
 	rm -rf ./archive
